@@ -1,0 +1,23 @@
+body {
+	border: none;
+	margin: 0;
+	overflow: hidden;
+}
+
+.homePrincipal {
+	display: flex;
+	background: #3F423F;
+	height: 100vh;
+	width: 100%;
+	overflow: hidden;
+
+}
+
+.organizacaoPrincipal {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	flex: 1;
+	height: 100%;
+}
