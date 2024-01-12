@@ -9,12 +9,9 @@ const GetGanhos = {
 			} else {
 				res.json(rows)
 			}
-
-
 		});
 
 	}
-
 }
 
 const DeletaGanhos = {
@@ -43,36 +40,37 @@ const AddGanhos = {
 			const data = new Date();
 			const mes = data.getMonth() + 1;
 			const ano  = data.getFullYear();
-			console.log(ano)
+
 			const itens = req.body;
 
 			const novosGanhos = itens.map((item) => ({
 				id: item.id,
 				label: item.label,
 				valor: item.valor,
-				mes: mes
+				mes: mes,
+				ano: ano
 			}));
 
 			//console.log(novosGanhos);
 
 			novosGanhos.forEach(item => {
-				const { id, label, valor, mes } = item;
+				const { id, label, valor, mes, ano } = item;
 
 				const itemExiste = "SELECT id FROM Ganhos WHERE id = ?"
 
 				db.all(itemExiste, id, (err, rows) => {
 
 					if (rows.length > 0) {
-						const atualizaItemExistente = "UPDATE Ganhos SET label = ?, valor = ?, mes = ? WHERE id = ?"
-						db.run(atualizaItemExistente, [label, valor, mes, id], (err) => {
+						const atualizaItemExistente = "UPDATE Ganhos SET label = ?, valor = ?, mes = ?, ano = ? WHERE id = ?"
+						db.run(atualizaItemExistente, [label, valor, mes, ano, id], (err) => {
 							if (err) console.log("Não foi possível atualizar os itens", err.message)
 						})
 						// const atualizaGanhosHistorico = "UPDATE Ganhos_Historico SET label = ?, valor = ?, mes = ?, idGanhos = ? WHERE id = id"
 						// db.run(atualizaGanhosHistorico, [label, valor, mes, id]);
 
 					} else {
-						const addNovoItem = "INSERT INTO Ganhos(label, valor, mes) VALUES (?,?,?)"
-						db.run(addNovoItem, [label, valor, mes], (err, rows) => {
+						const addNovoItem = "INSERT INTO Ganhos(label, valor, mes, ano) VALUES (?,?,?,?)"
+						db.run(addNovoItem, [label, valor, mes, ano], (err, rows) => {
 							if (err) console.log('Erro ao adicionar novos itens', err.message)
 							//if(addNovoItem) console.log('Novos itens adicionados com sucesso', rows)
 						})
