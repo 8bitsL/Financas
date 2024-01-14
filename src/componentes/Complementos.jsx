@@ -47,7 +47,7 @@ export const BotaoAdicionarNovoInput = (props) => {
 export const ValorTotal = (props) => {
 	return (
 		<Fab variant="extended" sx={{ bgcolor: 'white' }} >
-			<Typography variant='subtitle2' fontFamily='roboto' fontSize='16px'>SALDO TOTAL: {props.saldoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Typography>
+			<Typography variant='subtitle2' fontFamily='roboto' fontSize='16px'>{props.title}: {props.saldoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Typography>
 		</Fab>
 	)
 }

@@ -1,16 +1,16 @@
 const db = require('../DataBase/configDB');
 
-exports.getAllGanhos = (req, res) => {
-	const sql = "SELECT * FROM Ganhos ORDER BY valor DESC";
-	db.all(sql, (err, rows) => {
-		if (err)res.status(500).json({ error: 'Erro ao obter os ganhos', status: 500 })
-		else res.status(200).json(rows)		
-	});
+exports.getAllGastosFixos = (req, res) => {
+	const SQL = "SELECT * FROM Gastos_Fixos ORDER BY pago DESC";
+	db.all(SQL, (err, rows) =>{
+		if (err)res.status(500).json({ error: 'Erro ao obter os gastos fixos', status: 500 })
+		else res.status(200).json(rows)	
+	})
 }
 
-exports.deletaGanhos = (req, res) => {
+exports.deletaGastosFixos = (req, res) => {
 	const id = req.params.id;
-	const SQL = "UPDATE Ganhos SET valido = ? WHERE id = ?";
+	const SQL = "UPDATE Gastos_Fixos SET valido = ? WHERE id = ?";
 
 	db.run(SQL, 'false', id, function (err) {
 		if (err) return res.status(204).json({ error: `Registro com ID ${id} não encontrado`, status: 404 });
@@ -18,7 +18,7 @@ exports.deletaGanhos = (req, res) => {
 	res.json({ message: `Registro com ID ${id} excluído com sucesso`, status: 200 });
 }
 
-exports.addGanhos = (req, res) => {
+exports.addGastosFixos = (req, res) => {
 	try {
 		const data = new Date();
 		const mes = data.getMonth() + 1;
@@ -26,30 +26,31 @@ exports.addGanhos = (req, res) => {
 
 		const itens = req.body;
 
-		const novosGanhos = itens.map((item) => ({
+		const novosGastosFixos = itens.map((item) => ({
 			id: item.id,
 			label: item.label,
 			valor: item.valor,
+			pago: String(item.pago),
 			mes: mes,
 			ano: ano
 		}));
 
-		novosGanhos.forEach(item => {
-			const { id, label, valor, mes, ano } = item;
+		novosGastosFixos.forEach(item => {
+			const { id, label, valor, mes, ano, pago } = item;
 
-			const itemExiste = "SELECT id FROM Ganhos WHERE id = ?"
+			const itemExiste = "SELECT id FROM Gastos_Fixos WHERE id = ?"
 
 			db.all(itemExiste, id, (err, rows) => {
 
 				if (rows.length > 0) {
-					const atualizaItemExistente = "UPDATE Ganhos SET label = ?, valor = ?, mes = ?, ano = ? WHERE id = ?"
-					db.run(atualizaItemExistente, [label, valor, mes, ano, id], (err) => {
+					const atualizaItemExistente = "UPDATE Gastos_Fixos SET label = ?, valor = ?, mes = ?, ano = ?, pago = ? WHERE id = ?"
+					db.run(atualizaItemExistente, [label, valor, mes, ano, pago, id], (err) => {
 						if (err) console.log("Não foi possível atualizar os itens", err.message)
 					})
 
 				} else {
-					const addNovoItem = "INSERT INTO Ganhos(label, valor, mes, ano, valido) VALUES (?,?,?,?,?)"
-					db.run(addNovoItem, [label, valor, mes, ano, 'true'], (err) => {
+					const addNovoItem = "INSERT INTO Gastos_Fixos(label, valor, mes, ano, valido, pago) VALUES (?,?,?,?,?, ?)"
+					db.run(addNovoItem, [label, valor, mes, ano, 'true', pago], (err) => {
 						if (err) console.log('Erro ao adicionar novos itens', err.message)
 					})
 				}

@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, TextField, Typography, InputAdornment, Fab } from '@mui/material';
-import { BotaoSalvar, Titulo } from '../Complementos';
+import { Box, Paper, TextField, InputAdornment, IconButton, List, ListItem, Tooltip } from '@mui/material';
+import { EditInput, BotaoAdicionarNovoInput, BotaoSalvar, Titulo, ValorTotal, AddInput, ModalConfirmaDelete } from '../Complementos';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-// import { styled } from '@mui/material/styles';
+import { getGastosFixos,deletaGastosFixos, addGastosFixos } from '../../api/gastosFixosApi'
 
 const styles = {
 	boxPai: {
 		width: '99%',
-		height: '70%',
+		height: '75%',
 		mb: 1,
 		ml: 1,
 		mr: 1,
@@ -18,186 +21,247 @@ const styles = {
 		display: 'flex',
 		flexDirection: 'column',
 		justifyContent: 'space-around',
-		height: '85%',
+		height: '90%',
 	},
 	boxInputs: {
 		display: 'flex',
 		flexDirection: 'row',
-		justifyContent: 'space-around',
-		mt: 1
-	},
-	boxColumn: {
-		display: 'flex',
-		flexDirection: 'column',
-		flex: 1
+		flexWrap: 'wrap',
+		width: '100%',
 	},
 	paperInputs: {
-		mt: 1,
 		p: 1.3,
-		ml: 1,
-		mr: 1,
-		textAlign: 'center',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: 400
 	}
 }
 
-// const CssTextField = styled(TextField)({
-// 	'& .MuiTypography-root':{
-// 		color:'white'
-// 	},
-// 	'& .MuiInputLabel-root':{
-// 		color:'#d1a94e'
-// 	},
-
-// 	'& .MuiInput-underline:after': {
-// 	  borderBottomColor: '#d1a94e',
-// 	},
-// 	'& .MuiOutlinedInput-root': {
-
-// 	  '&:hover fieldset': {
-// 		borderColor: '#d1a94e',
-// 	  },
-// 	  '&.Mui-focused fieldset': {
-// 		borderColor: '#d1a94e'	
-// 	  },
-// 	},
-//   });
-
 const GastosFixos = () => {
+	const [valores, setValores] = useState();
 	const [saldoTotal, setSaldoTotal] = useState('');
-	const [valores, setValores] = useState({
-		internet: '',
-		celular: '',
-		seguro: '',
-		carro: '',
-		fies: '',
-		outros: ''
-	})
+	const [forceUpdate, setForceUpdate] = useState(false);
+	const [dadosParaEditarLabel, setDadosParaEditarLabel] = useState({ open: false, tipo: '', labelAtual: '', indexAtual: '', novoLabel: '' })
+	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false, label: '', valor: '', id: '' })
+	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({ open: false, label: '', id: '' })
 
-	const handleValores = (event) => {
-		setValores({
-			...valores,
-			[event.target.id]: Math.abs(event.target.value)
-		});
+	const handleValores = (event, index) => {
+		console.log(index)
+		const newValue = event.target.value.replace(/[^0-9.]/g, '');
+		setValores(prevValores => prevValores.map((item, i) => (i === index ? { ...item, valor: newValue } : item)));
 	};
 
+	const salvaDados = async () => {
+		console.log(saldoTotal);
+		console.log(valores);
+		const result = await addGastosFixos(valores);
+		console.log('RESULT', result);
+		setForceUpdate(prevState => !prevState);
+	}
+
+	/* AQUI COMEÇA A CRIÇÃO DE UM NOVO INPUT */
+	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
+
+	const addValoresNovoInput = (value, tipo) => {
+		if (tipo === 'label') {
+			setDadosParaAddInput((prevState) => ({
+				...prevState,
+				label: value
+			}));
+
+		} else {
+			setDadosParaAddInput((prevState) => ({
+				...prevState,
+				valor: value
+			}));
+		}
+	}
+
+	const salvaNovoInput = () => {
+
+		const UltimoElemento = valores[valores.length - 1]
+
+		const novoId = Number(UltimoElemento?.id + 1 || 0)
+
+		const novosValores = [...valores, { id: novoId, label: dadosParaAddInput.label, valor: dadosParaAddInput.valor }];
+
+		setValores(novosValores);
+
+		fechaAddNovoInput();
+	}
+
+	const fechaAddNovoInput = () => {
+		setDadosParaAddInput({ open: false })
+		console.log(valores)
+	}
+	/* AQUI TERMINA A CRIÇÃO DE UM NOVO INPUT */
+
+	/* AQUI COMEÇA A PARTE RESPONSÁVEL POR EDITAR O LABEL */
+	const AbreEditorLabel = (label, index, tipo) => setDadosParaEditarLabel({ open: true, tipo: tipo, labelAtual: label, indexAtual: index })
+
+	const NovoLabel = (value) => {
+		setDadosParaEditarLabel((prevState) => ({
+			...prevState,
+			novoLabel: value
+		}));
+	}
+
+	const EditaLabel = () => {
+		const updatedValores = [...valores];
+		updatedValores[dadosParaEditarLabel.indexAtual].label = dadosParaEditarLabel.novoLabel;
+		setValores(updatedValores);
+		fechaEditorLabel();
+	}
+
+	const fechaEditorLabel = () => setDadosParaEditarLabel({ open: false })
+
+	/* AQUI TERMINA A PARTE RESPONSÁVEL POR EDITAR O LABEL */
+
+	/*AQUI COMEÇA A PARTE QUE DELETA O INPUT*/
+	const abreModalDeleteInput = (label, id) => setDadosParaDeletarInput({ open: true, label: label, id: id });
+
+	const fechaModalDeleteInput = () => setDadosParaDeletarInput({ open: false });
+
+	const deletaInput = async (id) => {
+		const deletaInput = valores.filter(item => item.id !== id);
+
+		setValores(deletaInput)
+
+		const result = await deletaGastosFixos(id)
+		console.log(result)
+
+		fechaModalDeleteInput();
+		salvaDados();
+	}
+
+	/*AQUI TERMINA A PARTE QUE DELETA O INPUT*/
+
+	const confirmaPagamento = (idItem) => {
+		setValores((prevValores) => prevValores.map((item) => item.id === idItem ? { ...item, pago: !item.pago } : item));
+	}
+
 	useEffect(() => {
-		const somaValores = Number(valores.internet + valores.celular + valores.seguro + valores.carro + valores.fies + valores.outros);
-		setSaldoTotal(somaValores);
+		const fetchData = async () => {
+
+			const response = await getGastosFixos();
+			const dados = response.data;
+
+			// const retiraMes = dados.map(({ id, label, valor, valido }) => ({ id, label, valor, valido }));	  
+			setValores(dados);
+		};
+
+		fetchData();
+	}, [forceUpdate]);
+
+
+	useEffect(() => {
+		console.log(valores)
+		if (valores) {
+			const somaValores = valores.reduce((total, item) => total + parseFloat(item.valor || 0), 0);
+			setSaldoTotal(somaValores);
+		}
 	}, [valores])
 
+
 	return (
-		<Box sx={styles.boxPai}>
+		<>
+			<Box sx={styles.boxPai}>
+				<Titulo texto={'Informe aqui os seus gastos fixos mensais'} />
+				<Box sx={styles.container}>
 
-			<Titulo texto={'Informe aqui os seus gastos fixos mensais'} />
+					{valores &&
+						<List sx={styles.boxInputs}>
+							{valores.map((item, index) => (
+								<GastosItem
+									key={index}
+									item={item}
+									index={index}
+									handleValores={handleValores}
+									AbreEditorLabel={AbreEditorLabel}
+									abreModalDeleteInput={abreModalDeleteInput}
+									confirmaPagamento={confirmaPagamento}
 
-			<Box sx={styles.container}>
+								/>
+							))}
+						</List>
+					}
 
-				<Box sx={styles.boxInputs}>
+					<Box sx={{ alignSelf: 'self-end', p: 1, mr: 1 }}>
 
-					<Box sx={styles.boxColumn}>
-						<Paper sx={styles.paperInputs} elevation={8} >
-							<TextField fullWidth
-								id='internet'
-								label='Internet'
-								type='number'
-								value={valores.internet}
-								onChange={(e) => handleValores(e)}
-								InputProps={{
-									startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+						<BotaoAdicionarNovoInput title={"Adicionar novos gastos"} click={abreAddNovoInput} />
+						<ValorTotal saldoTotal={saldoTotal} title="Gastos Fixos" />
 
-								}}
-							/>
-
-						</Paper>
-
-						<Paper sx={styles.paperInputs} elevation={8} >
-							<TextField fullWidth
-								id='celular'
-								label='Celular'
-								type='number'
-								value={valores.celular}
-								onChange={(e) => handleValores(e)}
-								InputProps={{
-									startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-
-								}}
-							/>
-						</Paper>
-
-						<Paper sx={styles.paperInputs} elevation={8} >
-							<TextField fullWidth
-								id='seguro'
-								label='Seguro do Carro'
-								type='number'
-								value={valores.seguro}
-								onChange={(e) => handleValores(e)}
-								InputProps={{
-									startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-
-								}}
-							/>
-						</Paper>
 					</Box>
 
-					<Box sx={styles.boxColumn} >
-						<Paper sx={styles.paperInputs} elevation={8} >
-							<TextField fullWidth
-								id='carro'
-								label='Prestação do Carro'
-								type='number'
-								value={valores.carro}
-								onChange={(e) => handleValores(e)}
-								InputProps={{
-									startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-
-								}}
-							/>
-
-						</Paper>
-
-						<Paper sx={styles.paperInputs} elevation={8} >
-							<TextField fullWidth
-								id='fies'
-								label='Fies'
-								type='number'
-								value={valores.fies}
-								onChange={(e) => handleValores(e)}
-								InputProps={{
-									startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-
-								}}
-							/>
-						</Paper>
-
-						<Paper sx={styles.paperInputs} elevation={8} >
-							<TextField fullWidth
-								id='outros'
-								label='Outros'
-								type='number'
-								value={valores.outros}
-								onChange={(e) => handleValores(e)}
-								InputProps={{
-									startAdornment: <InputAdornment position="start">R$</InputAdornment>,
-
-								}}
-							/>
-						</Paper>
-					</Box>
-
+					<BotaoSalvar texto={'Salvar seus gastos mensais'} salvaDados={salvaDados} />
 				</Box>
-
-				<Box sx={{ alignSelf: 'self-end', p: 1, mr: 1 }}>
-					<Fab variant="extended" sx={{ bgcolor: 'white' }}>
-						<Typography variant='subtitle2' fontFamily='roboto' fontSize='16px'>TOTAL DE GASTOS: {saldoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</Typography>
-					</Fab>
-
-				</Box>
-
-				<BotaoSalvar texto={'Salvar seus gastos fixos'} />
-
 			</Box>
-		</Box>
-	)
+
+			<EditInput
+				title={'Edite o Label'}
+				dadosParaEditarLabel={dadosParaEditarLabel}
+				fechaEditorLabel={fechaEditorLabel}
+				EditaLabel={EditaLabel}
+				NovoLabel={NovoLabel}
+			/>
+
+			<AddInput
+				title={'Adicione um novo input'}
+				dadosParaAddInput={dadosParaAddInput}
+				addValoresNovoInput={addValoresNovoInput}
+				salvaNovoInput={salvaNovoInput}
+				fechaAddNovoInput={fechaAddNovoInput}
+			/>
+
+			<ModalConfirmaDelete
+				dadosParaDeletarInput={dadosParaDeletarInput}
+				fechaModalDeleteInput={fechaModalDeleteInput}
+				deletaInput={deletaInput}
+			/>
+
+		</>
+	);
 }
+
+const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDeleteInput, confirmaPagamento }) => {
+	if (item.valido !== 'false') {
+		return (
+			<ListItem sx={styles.paperInputs}>
+				<Paper elevation={8} component="form" sx={styles.paperInputs}>
+					<TextField
+						fullWidth
+						id={item.id.toString()}
+						label={item.label}
+						type="number"
+						value={item.valor}
+						onChange={(e) => handleValores(e, index)}
+						InputProps={{
+							startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+							inputProps: {
+								min: 0
+							},
+						}}
+					/>
+					<IconButton color="primary" aria-label="edit" onClick={() => AbreEditorLabel(item.label, index, 'edit')}>
+						<EditIcon />
+					</IconButton>
+
+					<IconButton color="error" aria-label="delete" onClick={() => abreModalDeleteInput(item.label, item.id)}>
+						<DeleteIcon />
+					</IconButton>
+					<Tooltip title="Marcar como pago" arrow>
+						<IconButton color={item.pago === "true" || item.pago === true ? 'success' : ''} aria-label="pago" onClick={() => confirmaPagamento(item.id)}>
+							<CheckCircleIcon />
+						</IconButton>
+					</Tooltip>
+				</Paper>
+			</ListItem>
+		);
+	} else {
+		return null;
+	}
+};
+
 
 export default GastosFixos;

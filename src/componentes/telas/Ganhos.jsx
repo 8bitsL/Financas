@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 
-import { pegaInputsGanhos, deletaGanhos, addGanhos } from '../../api/api.js';
+import { pegaInputsGanhos, deletaGanhos, addGanhos } from '../../api/ganhosApi';
 
 const styles = {
 	boxPai: {
@@ -47,16 +47,16 @@ const Ganhos = () => {
 	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({open: false, label: '', id: ''})
 
 	const handleValores = (event, index) => {
-		console.log(index)
+
 		const newValue = event.target.value.replace(/[^0-9.]/g, '');
+
 		setValores(prevValores => prevValores.map((item, i) => (i === index ? { ...item, valor: newValue } : item)));
 	  };
 
 	const salvaDados = async () => {
-		console.log(saldoTotal);
 
-		const result = await addGanhos(valores);
-		console.log('RESULT', result);
+		await addGanhos(valores);
+
 		setForceUpdate(prevState => !prevState);
 	}
 
@@ -64,16 +64,21 @@ const Ganhos = () => {
 	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
 
 	const addValoresNovoInput = (value, tipo) => {
+
 		if (tipo === 'label') {
+
 			setDadosParaAddInput((prevState) => ({
 				...prevState,
 				label: value
+
 			}));
 
 		} else {
+
 			setDadosParaAddInput((prevState) => ({
 				...prevState,
 				valor: value
+
 			}));
 		}
 	}
@@ -91,16 +96,14 @@ const Ganhos = () => {
 		fechaAddNovoInput();
 	}
 
-	const fechaAddNovoInput = () => {
-		setDadosParaAddInput({ open: false })
-		console.log(valores)
-	}
+	const fechaAddNovoInput = () => setDadosParaAddInput({ open: false })
 	/* AQUI TERMINA A CRIÇÃO DE UM NOVO INPUT */
 
 	/* AQUI COMEÇA A PARTE RESPONSÁVEL POR EDITAR O LABEL */
 	const AbreEditorLabel = (label, index, tipo) => setDadosParaEditarLabel({ open: true, tipo: tipo, labelAtual: label, indexAtual: index })
 
 	const NovoLabel = (value) => {
+
 		setDadosParaEditarLabel((prevState) => ({
 			...prevState,
 			novoLabel: value
@@ -108,9 +111,13 @@ const Ganhos = () => {
 	}
 
 	const EditaLabel = () => {
+
 		const updatedValores = [...valores];
+
 		updatedValores[dadosParaEditarLabel.indexAtual].label = dadosParaEditarLabel.novoLabel;
+
 		setValores(updatedValores);
+
 		fechaEditorLabel();
 	}
 
@@ -124,38 +131,46 @@ const Ganhos = () => {
 	const fechaModalDeleteInput = () => setDadosParaDeletarInput({ open: false });
 
 	const deletaInput = async (id) => {
+
 		const deletaInput = valores.filter(item => item.id !== id);
 
 		setValores(deletaInput)
 
-		const result = await deletaGanhos(id)
-		console.log(result)
+		await deletaGanhos(id)
 
 		fechaModalDeleteInput();
+
 		salvaDados();
 	}
 
 	/*AQUI TERMINA A PARTE QUE DELETA O INPUT*/
 	useEffect(() => {
+		
 		const fetchData = async () => {
 		 
 			const response = await pegaInputsGanhos();
+
 			const dados = response.data;
   
-			const retiraMes = dados.map(({ id, label, valor, valido }) => ({ id, label, valor, valido }));	  
+			const retiraMes = dados.map(({ id, label, valor, valido }) => ({ id, label, valor, valido }));	
+
 			setValores(retiraMes);
 		};
 	  
 		fetchData();
+
 	  }, [forceUpdate]);
 	  
 
 	useEffect(() => {
-		console.log(valores)
+
 		if (valores) {
+
 			const somaValores = valores.reduce((total, item) => total + parseFloat(item.valor || 0), 0);
+
 			setSaldoTotal(somaValores);
 		}
+
 	}, [valores])
 
 
@@ -183,7 +198,7 @@ const Ganhos = () => {
 					<Box sx={{ alignSelf: 'self-end', p: 1, mr: 1 }}>
 
 						<BotaoAdicionarNovoInput title={"Adicionar novos Ganhos"} click={abreAddNovoInput} />
-						<ValorTotal saldoTotal={saldoTotal} />
+						<ValorTotal saldoTotal={saldoTotal} title="Saldo Total" />
 
 					</Box>
 
