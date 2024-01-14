@@ -61,6 +61,7 @@ const Ganhos = () => {
 	}
 
 	/* AQUI COMEÇA A CRIÇÃO DE UM NOVO INPUT */
+	
 	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
 
 	const addValoresNovoInput = (value, tipo) => {
@@ -97,9 +98,11 @@ const Ganhos = () => {
 	}
 
 	const fechaAddNovoInput = () => setDadosParaAddInput({ open: false })
+
 	/* AQUI TERMINA A CRIÇÃO DE UM NOVO INPUT */
 
 	/* AQUI COMEÇA A PARTE RESPONSÁVEL POR EDITAR O LABEL */
+
 	const AbreEditorLabel = (label, index, tipo) => setDadosParaEditarLabel({ open: true, tipo: tipo, labelAtual: label, indexAtual: index })
 
 	const NovoLabel = (value) => {
@@ -126,6 +129,7 @@ const Ganhos = () => {
 	/* AQUI TERMINA A PARTE RESPONSÁVEL POR EDITAR O LABEL */
 
 	/*AQUI COMEÇA A PARTE QUE DELETA O INPUT*/
+
 	const abreModalDeleteInput = (label, id) => setDadosParaDeletarInput({ open: true, label: label, id: id });
 
 	const fechaModalDeleteInput = () => setDadosParaDeletarInput({ open: false });
@@ -144,8 +148,9 @@ const Ganhos = () => {
 	}
 
 	/*AQUI TERMINA A PARTE QUE DELETA O INPUT*/
+
 	useEffect(() => {
-		
+
 		const fetchData = async () => {
 		 
 			const response = await pegaInputsGanhos();
