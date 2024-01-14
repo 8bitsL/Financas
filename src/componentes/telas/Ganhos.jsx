@@ -42,16 +42,16 @@ const Ganhos = () => {
 	const [valores, setValores] = useState();
 	const [saldoTotal, setSaldoTotal] = useState('');
 	const [forceUpdate, setForceUpdate] = useState(false);
-	const [dadosParaEditarLabel, setDadosParaEditarLabel] = useState({open: false, tipo: '', labelAtual: '', indexAtual: '', novoLabel: ''})
-	const [dadosParaAddInput, setDadosParaAddInput] = useState({open: false, label: '', valor: '', id: ''})
-	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({open: false, label: '', id: ''})
+	const [dadosParaEditarLabel, setDadosParaEditarLabel] = useState({ open: false, tipo: '', labelAtual: '', indexAtual: '', novoLabel: '' })
+	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false, label: '', valor: '', id: '' })
+	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({ open: false, label: '', id: '' })
 
 	const handleValores = (event, index) => {
 
 		const newValue = event.target.value.replace(/[^0-9.]/g, '');
 
 		setValores(prevValores => prevValores.map((item, i) => (i === index ? { ...item, valor: newValue } : item)));
-	  };
+	};
 
 	const salvaDados = async () => {
 
@@ -61,7 +61,7 @@ const Ganhos = () => {
 	}
 
 	/* AQUI COMEÇA A CRIÇÃO DE UM NOVO INPUT */
-	
+
 	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
 
 	const addValoresNovoInput = (value, tipo) => {
@@ -152,20 +152,20 @@ const Ganhos = () => {
 	useEffect(() => {
 
 		const fetchData = async () => {
-		 
+
 			const response = await pegaInputsGanhos();
 
 			const dados = response.data;
-  
-			const retiraMes = dados.map(({ id, label, valor, valido }) => ({ id, label, valor, valido }));	
+
+			const retiraMes = dados.map(({ id, label, valor, valido }) => ({ id, label, valor, valido }));
 
 			setValores(retiraMes);
 		};
-	  
+
 		fetchData();
 
-	  }, [forceUpdate]);
-	  
+	}, [forceUpdate]);
+
 
 	useEffect(() => {
 
@@ -273,4 +273,3 @@ const GanhoItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDelet
 
 
 export default Ganhos;
-
