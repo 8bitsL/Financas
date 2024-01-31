@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Paper, TextField, InputAdornment, IconButton, List, ListItem, Tooltip } from '@mui/material';
-import { EditInput, BotaoAdicionarNovoInput, BotaoSalvar, Titulo, ValorTotal, AddInput, ModalConfirmaDelete } from '../Complementos';
+import { EditInput, BotaoAdicionarNovoInput, BotaoSalvar, Titulo, ValorTotal, AddInput, ModalConfirmaDelete, AddInfoInvestimentos } from '../Complementos';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import InfoIcon from '@mui/icons-material/Info';
 
-import { getGastosVariaveis, deletaGastosVariaveis, addGastosVariaveis } from '../../api/gastosVariaveisApi'
+import { getInvestimentos, deletaInvestimentos, addInvestimentos } from '../../api/investimentosApi'
 
 const styles = {
 	boxPai: {
@@ -38,13 +38,14 @@ const styles = {
 	}
 }
 
-const GastosVariaveis = () => {
+const Investimentos = () => {
 	const [valores, setValores] = useState();
 	const [saldoTotal, setSaldoTotal] = useState('');
 	const [forceUpdate, setForceUpdate] = useState(false);
 	const [dadosParaEditarLabel, setDadosParaEditarLabel] = useState({ open: false, tipo: '', labelAtual: '', indexAtual: '', novoLabel: '' })
 	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false, label: '', valor: '', id: '' })
 	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({ open: false, label: '', id: '' })
+	const [infoInvest, setInfoInveste] = useState({ open: false, id: '', label: '' })
 
 	const handleValores = (event, index) => {
 
@@ -55,8 +56,8 @@ const GastosVariaveis = () => {
 
 	const salvaDados = async () => {
 
-		await addGastosVariaveis(valores);
-
+		await addInvestimentos(valores);
+		console.log(valores)
 		setForceUpdate(prevState => !prevState);
 	}
 
@@ -65,18 +66,27 @@ const GastosVariaveis = () => {
 	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
 
 	const addValoresNovoInput = (value, tipo) => {
+		console.log(value)
 		if (tipo === 'label') {
 			setDadosParaAddInput((prevState) => ({
 				...prevState,
 				label: value
 			}));
 
-		} else {
+		} if (tipo === 'invest') {
+			setDadosParaAddInput((prevState) => ({
+				...prevState,
+				descricao: value
+			}));
+		}
+
+		else{
 			setDadosParaAddInput((prevState) => ({
 				...prevState,
 				valor: value
 			}));
 		}
+
 	}
 
 	const salvaNovoInput = () => {
@@ -85,13 +95,13 @@ const GastosVariaveis = () => {
 
 		const novoId = Number(UltimoElemento?.id + 1 || 0)
 
-		const novosValores = [...valores, { id: novoId, label: dadosParaAddInput.label, valor: dadosParaAddInput.valor }];
+		const novosValores = [...valores, { id: novoId, label: dadosParaAddInput.label, valor: dadosParaAddInput.valor, descricao: dadosParaAddInput.descricao }];
 
 		setValores(novosValores);
 
 		fechaAddNovoInput();
-	}
 
+	}
 	const fechaAddNovoInput = () => setDadosParaAddInput({ open: false })
 
 	/* AQUI TERMINA A CRIÇÃO DE UM NOVO INPUT */
@@ -129,7 +139,7 @@ const GastosVariaveis = () => {
 
 		setValores(deletaInput)
 
-		await deletaGastosVariaveis(id)
+		await deletaInvestimentos(id)
 
 		fechaModalDeleteInput();
 
@@ -138,13 +148,28 @@ const GastosVariaveis = () => {
 
 	/*AQUI TERMINA A PARTE QUE DELETA O INPUT*/
 
-	const confirmaPagamento = (idItem) => setValores((prevValores) => prevValores.map((item) => item.id === idItem ? { ...item, pago: !item.pago } : item));
 
+	/*AQUI COMEÇA A PARTE QUE EDITA AS INFORMAÇÕES DO INVESTIMENTOI*/
+
+	const abreInfoInvest = (investimento) => setInfoInveste({ ...investimento, open: true });
+
+	const alteraDadosInfoInvest = (value) => setInfoInveste((prevState) => ({ ...prevState, descricao: value }))
+
+	const salvaDadosInfoInvest = () => {
+		const novoValor = valores.map((item) => item.id === infoInvest.id ? { ...item, descricao: infoInvest.descricao } : item)
+
+		setValores(novoValor)
+
+		fechaInfoInvest();
+	}
+
+	const fechaInfoInvest = () => setInfoInveste({ open: false })
+	/*AQUI TERMINA A PARTE QUE EDITA AS INFORMAÇÕES DO INVESTIMENTOI*/
 
 	useEffect(() => {
 		const fetchData = async () => {
 
-			const response = await getGastosVariaveis();
+			const response = await getInvestimentos();
 
 			const dados = response.data;
 
@@ -168,7 +193,7 @@ const GastosVariaveis = () => {
 	return (
 		<>
 			<Box sx={styles.boxPai}>
-				<Titulo texto={'Informe aqui os seus gastos variaveis'} />
+				<Titulo texto={'Informe aqui os seus investimentos'} />
 				<Box sx={styles.container}>
 
 					{valores &&
@@ -181,7 +206,7 @@ const GastosVariaveis = () => {
 									handleValores={handleValores}
 									AbreEditorLabel={AbreEditorLabel}
 									abreModalDeleteInput={abreModalDeleteInput}
-									confirmaPagamento={confirmaPagamento}
+									abreInfoInvest={abreInfoInvest}
 
 								/>
 							))}
@@ -190,17 +215,18 @@ const GastosVariaveis = () => {
 
 					<Box sx={{ alignSelf: 'self-end', p: 1, mr: 1 }}>
 
-						<BotaoAdicionarNovoInput title={"Adicionar novos gastos"} click={abreAddNovoInput} />
-						<ValorTotal saldoTotal={saldoTotal} title="Gastos Variaveis" />
+						<BotaoAdicionarNovoInput title={"Adicionar investimentos"} click={abreAddNovoInput} />
+
+						<ValorTotal saldoTotal={saldoTotal} title="Investimentos" />
 
 					</Box>
 
-					<BotaoSalvar texto={'Salvar seus gastos variaveis'} salvaDados={salvaDados} />
+					<BotaoSalvar texto={'Salvar seus investimentos'} salvaDados={salvaDados} />
 				</Box>
 			</Box>
 
 			<EditInput
-				title={'Edite o nome'}
+				title={'Edite o Label'}
 				dadosParaEditarLabel={dadosParaEditarLabel}
 				fechaEditorLabel={fechaEditorLabel}
 				EditaLabel={EditaLabel}
@@ -208,11 +234,12 @@ const GastosVariaveis = () => {
 			/>
 
 			<AddInput
-				title={'gasto variavel'}
+				title={'Adicione um novo investimento'}
 				dadosParaAddInput={dadosParaAddInput}
 				addValoresNovoInput={addValoresNovoInput}
 				salvaNovoInput={salvaNovoInput}
 				fechaAddNovoInput={fechaAddNovoInput}
+				tipo={'invest'}
 			/>
 
 			<ModalConfirmaDelete
@@ -221,11 +248,19 @@ const GastosVariaveis = () => {
 				deletaInput={deletaInput}
 			/>
 
+			<AddInfoInvestimentos
+				infoInvest={infoInvest}
+				alteraDadosInfoInvest={alteraDadosInfoInvest}
+				salvaDadosInfoInvest={salvaDadosInfoInvest}
+				close={fechaInfoInvest}
+
+			/>
+
 		</>
 	);
 }
 
-const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDeleteInput, confirmaPagamento }) => {
+const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDeleteInput, abreInfoInvest }) => {
 		return (
 			<ListItem sx={styles.paperInputs}>
 				<Paper elevation={8} component="form" sx={styles.paperInputs}>
@@ -250,9 +285,9 @@ const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDele
 					<IconButton color="error" aria-label="delete" onClick={() => abreModalDeleteInput(item.label, item.id)}>
 						<DeleteIcon />
 					</IconButton>
-					<Tooltip title="Marcar como pago" arrow>
-						<IconButton color={item.pago === "true" || item.pago === true ? 'success' : ''} aria-label="pago" onClick={() => confirmaPagamento(item.id)}>
-							<CheckCircleIcon />
+					<Tooltip title={item.descricao} arrow>
+						<IconButton color='info' aria-label="pago" onClick={() => abreInfoInvest(item)}>
+							<InfoIcon />
 						</IconButton>
 					</Tooltip>
 				</Paper>
@@ -261,4 +296,4 @@ const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDele
 };
 
 
-export default GastosVariaveis;
+export default Investimentos;

@@ -5,9 +5,9 @@ export const pegaInputsGanhos = () => {
 }
 
 export const deletaGanhos = (id) => {
-	return api.delete(`/deleta-ganhos/${id}`);
+	return api.delete(`/ganhos/deleta-ganhos/${id}`);
 }
 
 export const addGanhos = (itens) => {
-	return api.post('/adicionarGanhos', itens);
+	return api.post('/ganhos/adicionarGanhos', itens);
 }

@@ -4,7 +4,8 @@ const initialState = {
 	mostradoresPrincipais: false,
 	mostraGanhos: true,
 	mostraGastosFixos: false,
-	mostraGastosVariaveis: false
+	mostraGastosVariaveis: false,
+	mostraInvestimentos: false
 }
 
 const resetState = (state) => {
@@ -12,6 +13,7 @@ const resetState = (state) => {
 	state.mostraGanhos = false;
 	state.mostraGastosFixos = false;
 	state.mostraGastosVariaveis = false;
+	state.mostraInvestimentos = false;
 }
 
 export const estadosApp = createSlice({
@@ -33,11 +35,15 @@ export const estadosApp = createSlice({
 		mostraGastosVariaveis: (state) => {
 			resetState(state)
 			state.mostraGastosVariaveis = true;
+		},
+		mostraInvestimentos: (state) => {
+			resetState(state)
+			state.mostraInvestimentos = true;
 		}
 	},
 })
 
 
-export const { mostraMostradorPrincial, mostraGanhos, mostraGastosFixos, mostraGastosVariaveis } = estadosApp.actions
+export const { mostraMostradorPrincial, mostraGanhos, mostraGastosFixos, mostraGastosVariaveis, mostraInvestimentos } = estadosApp.actions
 
 export default estadosApp.reducer

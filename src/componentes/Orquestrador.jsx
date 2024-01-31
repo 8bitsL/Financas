@@ -5,12 +5,12 @@ import MostradoresIniciais from './telas/mostradoresIniciais';
 import Ganhos from './telas/Ganhos';
 import GastosFixos from './telas/gastosFixos';
 import GastosVariaveis from './telas/gastosVariaveis';
-
+import Investimentos from './telas/Investimentos';
 
 
 function Orquestrador() {
 	const estado = useSelector((state) => state.estado);
-	const { mostradoresPrincipais, mostraGanhos, mostraGastosFixos, mostraGastosVariaveis } = estado;
+	const { mostradoresPrincipais, mostraGanhos, mostraGastosFixos, mostraGastosVariaveis, mostraInvestimentos } = estado;
 
 	return (
 		<>
@@ -18,6 +18,7 @@ function Orquestrador() {
 			{ mostraGanhos && <Ganhos/> }
 			{ mostraGastosFixos && <GastosFixos/> }
 			{ mostraGastosVariaveis && <GastosVariaveis/>}
+			{ mostraInvestimentos && <Investimentos/>}
 
 		</>
 
