@@ -199,7 +199,7 @@ const GastosFixos = () => {
 			</Box>
 
 			<EditInput
-				title={'Edite o Label'}
+				title={'Altere o nome'}
 				dadosParaEditarLabel={dadosParaEditarLabel}
 				fechaEditorLabel={fechaEditorLabel}
 				EditaLabel={EditaLabel}
@@ -207,7 +207,7 @@ const GastosFixos = () => {
 			/>
 
 			<AddInput
-				title={'Adicione um novo input'}
+				title={'gasto fixo'}
 				dadosParaAddInput={dadosParaAddInput}
 				addValoresNovoInput={addValoresNovoInput}
 				salvaNovoInput={salvaNovoInput}
@@ -225,7 +225,6 @@ const GastosFixos = () => {
 }
 
 const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDeleteInput, confirmaPagamento }) => {
-	if (item.valido !== 'false') {
 		return (
 			<ListItem sx={styles.paperInputs}>
 				<Paper elevation={8} component="form" sx={styles.paperInputs}>
@@ -258,9 +257,6 @@ const GastosItem = ({ item, index, handleValores, AbreEditorLabel, abreModalDele
 				</Paper>
 			</ListItem>
 		);
-	} else {
-		return null;
-	}
 };
 
 

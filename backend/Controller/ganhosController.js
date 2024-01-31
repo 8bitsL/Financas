@@ -1,7 +1,7 @@
 const db = require('../DataBase/configDB');
 
 exports.getAllGanhos = (req, res) => {
-	const sql = "SELECT * FROM Ganhos ORDER BY valor DESC";
+	const sql = "SELECT * FROM Ganhos WHERE valido = 'true' ORDER BY valor DESC";
 	db.all(sql, (err, rows) => {
 		if (err)res.status(500).json({ error: 'Erro ao obter os ganhos', status: 500 })
 		else res.status(200).json(rows)		

@@ -212,7 +212,7 @@ const Ganhos = () => {
 			</Box>
 
 			<EditInput
-				title={'Edite o Label'}
+				title={'Altere o nome'}
 				dadosParaEditarLabel={dadosParaEditarLabel}
 				fechaEditorLabel={fechaEditorLabel}
 				EditaLabel={EditaLabel}
@@ -220,7 +220,7 @@ const Ganhos = () => {
 			/>
 
 			<AddInput
-				title={'Adicione um novo input'}
+				title={'ganho'}
 				dadosParaAddInput={dadosParaAddInput}
 				addValoresNovoInput={addValoresNovoInput}
 				salvaNovoInput={salvaNovoInput}

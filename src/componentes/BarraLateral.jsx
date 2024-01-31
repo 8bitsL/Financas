@@ -1,13 +1,14 @@
 import React from 'react';
 import { Divider, List, ListItem, ListItemText, ListItemButton, ListItemIcon } from "@mui/material";
 import {  useDispatch } from 'react-redux';
-import { mostraGastosFixos, mostraMostradorPrincial, mostraGanhos, mostraGastosVariaveis } from '../redux/estados';
+import { mostraGastosFixos, mostraMostradorPrincial, mostraGanhos, mostraGastosVariaveis, mostraInvestimentos } from '../redux/estados';
 
 import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
-import CachedIcon from '@mui/icons-material/Cached';
+// import CachedIcon from '@mui/icons-material/Cached';
 import PlagiarismIcon from '@mui/icons-material/Plagiarism';
+import CreditScoreIcon from '@mui/icons-material/CreditScore';
 
 const styles = {
 	list: {
@@ -87,7 +88,7 @@ const BarraLateral = () => {
 			<ListItem key="gastosVariaveis" disablePadding>
 				<ListItemButton sx={styles.listaBotao} onClick={() => dispatch(mostraGastosVariaveis())}>
 					<ListItemIcon >
-						<CachedIcon color="warning" fontSize='medium' sx={{ ml: 3 }} />
+						<CurrencyExchangeIcon color="warning" sx={{ ml: 3 }} />
 					</ListItemIcon>
 					<ListItemText primary="Gastos Variaveis" primaryTypographyProps={{ variant: "subtitle1", ml: 1 }} />
 				</ListItemButton>
@@ -96,9 +97,9 @@ const BarraLateral = () => {
 			<Divider component="li" sx={styles.divider} />
 
 			<ListItem key="investimentos" disablePadding>
-				<ListItemButton sx={styles.listaBotao}>
+				<ListItemButton sx={styles.listaBotao} onClick={() => dispatch(mostraInvestimentos())}>
 					<ListItemIcon >
-						<CurrencyExchangeIcon fontSize='medium' sx={{ ml: 3,  color: 'yellow' }} />
+						<CreditScoreIcon fontSize='medium' sx={{ ml: 3,  color: 'yellow' }} />
 					</ListItemIcon>
 					<ListItemText primary="Investimentos" primaryTypographyProps={{ variant: "subtitle1", ml: 1 }} />
 				</ListItemButton>

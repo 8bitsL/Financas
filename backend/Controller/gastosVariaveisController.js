@@ -1,7 +1,7 @@
 const db = require('../DataBase/configDB');
 
 exports.getAllGastosVariaveis = (req, res) => {
-	const SQL = "SELECT * FROM Gastos_Variaveis ORDER BY pago DESC";
+	const SQL = "SELECT * FROM Gastos_Variaveis WHERE valido = 'true' ORDER BY pago DESC";
 	db.all(SQL, (err, rows) =>{
 		if (err)res.status(500).json({ error: 'Erro ao obter os gastos Variaveis', status: 500 })
 		else res.status(200).json(rows)	
