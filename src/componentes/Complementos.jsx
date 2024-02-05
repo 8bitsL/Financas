@@ -1,8 +1,7 @@
 import React from 'react';
-import { Paper, Typography, Button, Tooltip, Fab, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, FormControl, InputLabel } from '@mui/material';
+import { Paper, Typography, Button, Tooltip, Fab, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, FormControl, InputLabel, MenuItem } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AddIcon from '@mui/icons-material/Add';
-
 
 const style = {
 	paperTitle: {
@@ -12,7 +11,7 @@ const style = {
 		m: 1,
 		bgcolor: '#2f2f2e'
 	}
-	
+
 }
 
 
@@ -89,6 +88,9 @@ export const EditInput = (props) => {
 					onChange={(e) => props.NovoLabel(e.target.value)}
 
 				/>
+				{/* {props.tipo === 'invest' &&
+					EditInvestimento(props)
+				} */}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.EditaLabel}>Alterar</Button>
@@ -122,53 +124,8 @@ export const AddInput = (props) => {
 					type="number"
 					fullWidth
 					variant="standard"
-					onChange={(e) => props.addValoresNovoInput(e.target.value)}
+					onChange={(e) => props.addValoresNovoInput(e.target.value, 'valor')}
 				/>
-				{props.tipo === 'invest' &&
-					<>
-						<TextField
-							margin="dense"
-							id="infos"
-							label='Informações do investimento'
-							type="text"
-							fullWidth
-							variant="standard"
-							onChange={(e) => props.addValoresNovoInput(e.target.value, 'invest')}
-						/>
-
-						<FormControl fullWidth sx={{mt: 2}}>
-							<InputLabel htmlFor="dtinicio" style={{transform: 'translate(0, .5px) scale(0.75)',marginTop: 5,  marginLeft: 3}}>
-								Data inicial do investimento
-							</InputLabel>
-							<TextField
-								id="dtinicio"
-								type="date"
-								fullWidth
-								onChange={(e) => props.addValoresNovoInput(e.target.value, 'invest')}
-								InputLabelProps={{
-									shrink: true,
-								  }}
-								  InputProps={{ style: { paddingTop: 12  } }}
-							/>
-						</FormControl>
-
-						<FormControl fullWidth sx={{mt: 2}}>
-							<InputLabel htmlFor="dtfim" style={{transform: 'translate(0, .5px) scale(0.75)', marginTop: 5, marginLeft: 3}}>
-								Data final do investimento
-							</InputLabel>
-							<TextField
-								id="dtfim"
-								type="date"
-								fullWidth
-								onChange={(e) => props.addValoresNovoInput(e.target.value, 'invest')}
-								InputLabelProps={{
-									shrink: true,
-								  }}
-								  InputProps={{ style: { paddingTop: 10} }}
-							/>
-						</FormControl>
-					</>
-				}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.salvaNovoInput}>Criar</Button>
@@ -178,31 +135,211 @@ export const AddInput = (props) => {
 	)
 }
 
-export const AddInfoInvestimentos = (props) => {
+//PARTE RELACIONADA AOS INVESTIMENTOS
+
+export const AddInvestimento = (props) => {
+	const formataData = (data) => {
+		console.log(data)
+		const [ano, mes, dia] = data.split('-');
+		return `${dia}/${mes}/${ano}`;
+	}
+
 	return (
-		<Dialog open={props.infoInvest.open} onClose={props.close}>
-			<DialogTitle>Informações do investimento</DialogTitle>
-			<DialogContent sx={{ width: 500 }}>
+		<Dialog open={props.dadosParaAddInvestimento.open} onClose={props.fechaAddNovoInput}>
+			<DialogTitle>Novo investimento</DialogTitle>
+			<DialogContent sx={{ width: 250 }}>
+				<DialogContentText>Adicione um novo <strong>{props.title}</strong></DialogContentText>
+				<TextField
+					autoFocus
+					margin="dense"
+					id="name"
+					label='Nome do investimento'
+					type="text"
+					fullWidth
+					variant="standard"
+					onChange={(e) => props.addValoresNovoInput(e.target.value, 'label')}
+
+				/>
+				<TextField
+					margin="dense"
+					id="valor"
+					label='Valor do investimento'
+					type="number"
+					fullWidth
+					variant="standard"
+					onChange={(e) => props.addValoresNovoInput(e.target.value, 'valor')}
+				/>
+				<TextField sx={{ mt: 3 }}
+					id="tipoInvest"
+					select
+					label="Tipo de investimento"
+					fullWidth
+					variant="standard"
+					onChange={(e) => props.addValoresNovoInput(e.target.value, 'idTipoInvest')}
+				>
+					{props.tiposInvest?.map((tipo) => (
+						<MenuItem key={tipo.id} value={tipo.id}>
+							{tipo.nomeInvest}  {tipo?.simboloInvest}
+						</MenuItem>
+					))}
+
+				</TextField>
+				
+				<TextField
+					margin="dense"
+					id="infos"
+					label='Informações do investimento'
+					type="text"
+					fullWidth
+					multiline
+					minRows={2}
+					onChange={(e) => props.addValoresNovoInput(e.target.value, 'descricao')}
+				/>
+
+				<FormControl fullWidth sx={{ mt: 2 }}>
+					<InputLabel htmlFor="dtinicio" style={{ transform: 'translate(0, .5px) scale(0.75)', marginTop: 5, marginLeft: 3 }}>
+						Data inicial do investimento
+					</InputLabel>
+					<TextField
+						id="dtinicio"
+						type="date"
+						fullWidth
+						onChange={(e) => {
+							const formatarData = formataData(e.target.value)
+							props.addValoresNovoInput(formatarData, 'dataInicio')
+						}}
+						InputProps={{ style: { paddingTop: 12 } }}
+					/>
+				</FormControl>
+
+				<FormControl fullWidth sx={{ mt: 2 }}>
+					<InputLabel htmlFor="dtfim" style={{ transform: 'translate(0, .5px) scale(0.75)', marginTop: 5, marginLeft: 3 }}>
+						Data final do investimento
+					</InputLabel>
+					<TextField
+						id="dtfim"
+						type="date"
+						fullWidth
+						onChange={(e) => {
+							const formatarData = formataData(e.target.value)
+							props.addValoresNovoInput(formatarData, 'dataFim')
+						}}
+						InputProps={{ style: { paddingTop: 10 } }}
+					/>
+				</FormControl>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={props.salvaNovoInput}>Criar</Button>
+				<Button onClick={props.fechaAddNovoInput} color="error">Cancelar</Button>
+			</DialogActions>
+		</Dialog>
+
+
+
+	)
+}
+
+export const EditInputInvest = (props) => {
+
+	const formataDataParaExibir = (data) => {
+		if (!data) return ''
+
+		const [dia, mes, ano] = data.split('/');
+
+		return `${ano}-${mes}-${dia}`;
+	}
+
+	const formataDataParaEnviar = (data) => {
+		if (!data) return ''
+
+		const [ano, mes, dia] = data.split('-');
+
+		return `${dia}/${mes}/${ano}`;
+	}
+
+
+	return (
+		<Dialog open={props.dadosParaEditarInvestimento.open} onClose={props.fechaEditorInvest}>
+			<DialogTitle>{props.title}</DialogTitle>
+			<DialogContent>
 				<DialogContentText>
-					Insira aqui as informações sobre o investimento <strong>{props.infoInvest.label}</strong>
+					Atualmente o nome é: <strong>{props.dadosParaEditarInvestimento.label}</strong>
 				</DialogContentText>
 				<TextField
 					autoFocus
-					margin='dense'
-					id="infoInvest"
-					label="Informações"
-					type='text'
+					margin="dense"
+					id="name"
+					label='Novo nome'
+					type="text"
 					fullWidth
-					variant='standard'
-					value={props.infoInvest.descricao || ''}
-					onChange={(e) => props.alteraDadosInfoInvest(e.target.value)}
+					variant="standard"
+					onChange={(e) => props.NovoInvest(e.target.value, 'label')}
+
 				/>
+				<TextField
+					margin="dense"
+					id="name"
+					label='Valor investido'
+					type="number"
+					fullWidth
+					variant="standard"
+					value={props.dadosParaEditarInvestimento.valor || ''}
+					onChange={(e) => props.NovoInvest(e.target.value, 'valor')}
+
+				/>
+				<TextField
+					margin="dense"
+					id="infos"
+					label='Informações do investimento'
+					type="text"
+					fullWidth
+					multiline
+					minRows={2}
+					value={props.dadosParaEditarInvestimento.descricao || ''}
+					onChange={(e) => props.NovoInvest(e.target.value, 'descricao')}
+				/>
+
+				<FormControl fullWidth sx={{ mt: 2 }}>
+					<InputLabel htmlFor="dtinicio" style={{ transform: 'translate(0, .5px) scale(0.75)', marginTop: 5, marginLeft: 3 }}>
+						Data inicial do investimento
+					</InputLabel>
+					<TextField
+						id="dtinicio"
+						type="date"
+						fullWidth
+						value={formataDataParaExibir(props.dadosParaEditarInvestimento.dataInicio)}
+						onChange={(e) => {
+							const formatarData = formataDataParaEnviar(e.target.value)
+							props.NovoInvest(formatarData, 'dataInicio')
+						}}
+						InputProps={{ style: { paddingTop: 12 } }}
+					/>
+				</FormControl>
+
+				<FormControl fullWidth sx={{ mt: 2 }}>
+					<InputLabel htmlFor="dtfim" style={{ transform: 'translate(0, .5px) scale(0.75)', marginTop: 5, marginLeft: 3 }}>
+						Data final do investimento
+					</InputLabel>
+					<TextField
+						id="dtfim"
+						type="date"
+						fullWidth
+						value={formataDataParaExibir(props.dadosParaEditarInvestimento.dataFim)}
+						onChange={(e) => {
+							const formatarData = formataDataParaEnviar(e.target.value)
+							props.NovoInvest(formatarData, 'dataFim')
+						}}
+						InputProps={{ style: { paddingTop: 12 } }}
+					/>
+				</FormControl>
+				
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.salvaDadosInfoInvest}>Adicionar</Button>
-				<Button onClick={props.close} color="error">Cancelar</Button>
+				<Button onClick={props.EditaInvest}>Alterar</Button>
+				<Button onClick={props.fechaEditorInvest} color="error">Cancelar</Button>
 			</DialogActions>
 		</Dialog>
 	)
 }
+
 

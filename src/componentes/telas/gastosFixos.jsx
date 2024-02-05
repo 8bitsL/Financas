@@ -43,7 +43,7 @@ const GastosFixos = () => {
 	const [saldoTotal, setSaldoTotal] = useState('');
 	const [forceUpdate, setForceUpdate] = useState(false);
 	const [dadosParaEditarLabel, setDadosParaEditarLabel] = useState({ open: false, tipo: '', labelAtual: '', indexAtual: '', novoLabel: '' })
-	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false, label: '', valor: '', id: '' })
+	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false})
 	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({ open: false, label: '', id: '' })
 
 	const handleValores = (event, index) => {
@@ -53,42 +53,33 @@ const GastosFixos = () => {
 	};
 
 	const salvaDados = async () => {
-		console.log(saldoTotal);
-		console.log(valores);
-		const result = await addGastosFixos(valores);
-		console.log('RESULT', result);
+		await addGastosFixos(valores);
 		setForceUpdate(prevState => !prevState);
 	}
 
 	/* AQUI COMEÇA A CRIÇÃO DE UM NOVO INPUT */
 	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
 
-	const addValoresNovoInput = (value, tipo) => {
-		if (tipo === 'label') {
-			setDadosParaAddInput((prevState) => ({
-				...prevState,
-				label: value
-			}));
-
-		} else {
-			setDadosParaAddInput((prevState) => ({
-				...prevState,
-				valor: value
-			}));
-		}
+	const addValoresNovoInput = (value, campo) => {
+		setDadosParaAddInput((prevState) => ({
+			...prevState,
+			[campo]: value, 
+			pago: "false"
+		}));
 	}
 
 	const salvaNovoInput = () => {
 
-		const UltimoElemento = valores[valores.length - 1]
+		const maiorID = Math.max(...valores.map(item => item.id), 0);
 
-		const novoId = Number(UltimoElemento?.id + 1 || 0)
+		const novoId = Number(maiorID + 1 || 0)
 
-		const novosValores = [...valores, { id: novoId, label: dadosParaAddInput.label, valor: dadosParaAddInput.valor }];
+		const novosValores = [...valores, { id: novoId, ...dadosParaAddInput }];
 
 		setValores(novosValores);
 
 		fechaAddNovoInput();
+
 	}
 
 	const fechaAddNovoInput = () => {
@@ -132,13 +123,12 @@ const GastosFixos = () => {
 		console.log(result)
 
 		fechaModalDeleteInput();
-		salvaDados();
 	}
 
 	/*AQUI TERMINA A PARTE QUE DELETA O INPUT*/
 
 	const confirmaPagamento = (idItem) => {
-		setValores((prevValores) => prevValores.map((item) => item.id === idItem ? { ...item, pago: !item.pago } : item));
+		setValores((prevValores) => prevValores.map((item) => item.id === idItem ? { ...item, pago: !JSON.parse(item.pago) } : item));
 	}
 
 	useEffect(() => {

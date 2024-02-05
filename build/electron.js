@@ -1,18 +1,11 @@
 const { app, BrowserWindow} = require("electron");
 const path = require("path");
-const express = require("express");
 const isDev = require("electron-is-dev");
-const appExpress = require("../src/server/index.js");
+const { spawn } = require('child_process');
+// const {fechaDB} = require('../backend/DataBase/configDB.js')
 
-// const appExpress = express();
-const port = 3001;
-
-appExpress.use(express.static(__dirname + '/public'))
- //appExpress.use(express.static(path.join(__dirname, "/public/index.html")));
-
-appExpress.listen(port, () => {
-	console.log(`Servidor Express iniciado na porta ${port}`);
-  });
+let expressProcess;
+const expressPath = path.join(__dirname, '../backend/Server/server.js');
 
 function createWindow(){
 	const win = new BrowserWindow({
@@ -27,7 +20,14 @@ function createWindow(){
 }
 
 app.whenReady().then(() => {
+	expressProcess = spawn('node', [expressPath]);
+
+  	expressProcess.stdout.on('data', (data) => {
+    	console.log(`Saida do servidor Express: ${data}`);
+  	});
+
 	createWindow();
+
 })
 
 app.on("window-all-closed", () => {
@@ -35,3 +35,8 @@ app.on("window-all-closed", () => {
 		app.quit();
 	}
 })
+
+app.on('before-quit', () => {
+	expressProcess.kill();
+	// fechaDB();
+  });

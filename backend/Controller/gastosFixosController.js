@@ -38,13 +38,13 @@ exports.addGastosFixos = (req, res) => {
 		novosGastosFixos.forEach(item => {
 			const { id, label, valor, mes, ano, pago } = item;
 
-			const itemExiste = "SELECT id FROM Gastos_Fixos WHERE id = ?"
+			const itemExiste = "SELECT id FROM Gastos_Fixos WHERE id = ? AND valido = 'true'"
 
 			db.all(itemExiste, id, (err, rows) => {
 
 				if (rows.length > 0) {
-					const atualizaItemExistente = "UPDATE Gastos_Fixos SET label = ?, valor = ?, mes = ?, ano = ?, pago = ? WHERE id = ?"
-					db.run(atualizaItemExistente, [label, valor, mes, ano, pago, id], (err) => {
+					const atualizaItemExistente = "UPDATE Gastos_Fixos SET label = ?, valor = ?, pago = ? WHERE id = ?"
+					db.run(atualizaItemExistente, [label, valor, pago, id], (err) => {
 						if (err) console.log("Não foi possível atualizar os itens", err.message)
 					})
 

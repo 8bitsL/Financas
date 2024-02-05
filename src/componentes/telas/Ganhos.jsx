@@ -43,7 +43,7 @@ const Ganhos = () => {
 	const [saldoTotal, setSaldoTotal] = useState('');
 	const [forceUpdate, setForceUpdate] = useState(false);
 	const [dadosParaEditarLabel, setDadosParaEditarLabel] = useState({ open: false, tipo: '', labelAtual: '', indexAtual: '', novoLabel: '' })
-	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false, label: '', valor: '', id: '' })
+	const [dadosParaAddInput, setDadosParaAddInput] = useState({ open: false })
 	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({ open: false, label: '', id: '' })
 
 	const handleValores = (event, index) => {
@@ -54,7 +54,6 @@ const Ganhos = () => {
 	};
 
 	const salvaDados = async () => {
-
 		await addGanhos(valores);
 
 		setForceUpdate(prevState => !prevState);
@@ -64,37 +63,25 @@ const Ganhos = () => {
 
 	const abreAddNovoInput = () => setDadosParaAddInput({ open: true })
 
-	const addValoresNovoInput = (value, tipo) => {
-
-		if (tipo === 'label') {
-
-			setDadosParaAddInput((prevState) => ({
-				...prevState,
-				label: value
-
-			}));
-
-		} else {
-
-			setDadosParaAddInput((prevState) => ({
-				...prevState,
-				valor: value
-
-			}));
-		}
+	const addValoresNovoInput = (value, campo) => {
+		setDadosParaAddInput((prevState) => ({
+			...prevState,
+			[campo]: value
+		}));
 	}
 
 	const salvaNovoInput = () => {
 
-		const UltimoElemento = valores[valores.length - 1]
+		const maiorID = Math.max(...valores.map(item => item.id), 0);
 
-		const novoId = Number(UltimoElemento?.id + 1 || 0)
+		const novoId = Number(maiorID + 1 || 0)
 
-		const novosValores = [...valores, { id: novoId, label: dadosParaAddInput.label, valor: dadosParaAddInput.valor }];
+		const novosValores = [...valores, { id: novoId, ...dadosParaAddInput }];
 
 		setValores(novosValores);
 
 		fechaAddNovoInput();
+
 	}
 
 	const fechaAddNovoInput = () => setDadosParaAddInput({ open: false })
@@ -143,8 +130,6 @@ const Ganhos = () => {
 		await deletaGanhos(id)
 
 		fechaModalDeleteInput();
-
-		salvaDados();
 	}
 
 	/*AQUI TERMINA A PARTE QUE DELETA O INPUT*/

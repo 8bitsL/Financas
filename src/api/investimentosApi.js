@@ -11,3 +11,7 @@ export const deletaInvestimentos = (id) => {
 export const addInvestimentos = (itens) => {
 	return api.post('investimentos/add', itens)
 }
+
+export const tiposInvestimentos = () => {
+	return api.get('/investimentos/tipos')
+}

@@ -37,13 +37,13 @@ exports.addGanhos = (req, res) => {
 		novosGanhos.forEach(item => {
 			const { id, label, valor, mes, ano } = item;
 
-			const itemExiste = "SELECT id FROM Ganhos WHERE id = ?"
+			const itemExiste = "SELECT id FROM Ganhos WHERE id = ? AND valido = 'true'"
 
 			db.all(itemExiste, id, (err, rows) => {
 
 				if (rows.length > 0) {
-					const atualizaItemExistente = "UPDATE Ganhos SET label = ?, valor = ?, mes = ?, ano = ? WHERE id = ?"
-					db.run(atualizaItemExistente, [label, valor, mes, ano, id], (err) => {
+					const atualizaItemExistente = "UPDATE Ganhos SET label = ?, valor = ? WHERE id = ?"
+					db.run(atualizaItemExistente, [label, valor, id], (err) => {
 						if (err) console.log("Não foi possível atualizar os itens", err.message)
 					})
 

@@ -6,6 +6,7 @@ const investimentosController  = require('../Controller/investimentosController'
 router.get('/', investimentosController.getAllInvestimentos);
 router.delete('/delet/:id', investimentosController.deletaInvestimentos);
 router.post('/add', investimentosController.addInvestimentos)
+router.get('/tipos', investimentosController.getTiposInvest)
 
 
 module.exports = router
