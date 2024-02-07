@@ -1,4 +1,4 @@
-import api from './index.js'
+import { api } from './index.js'
 
 export const getInvestimentos = () => {
 	return api.get('/investimentos');
@@ -14,4 +14,12 @@ export const addInvestimentos = (itens) => {
 
 export const tiposInvestimentos = () => {
 	return api.get('/investimentos/tipos')
+}
+
+export const getCotacoes = () => {
+	return api.get('/investimentos/cotacoes');
+}
+
+export const getTaxas = () => {
+	return api.get('/investimentos/taxas');
 }

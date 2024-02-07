@@ -4,7 +4,7 @@ import { BotaoAdicionarNovoInput, BotaoSalvar, Titulo, ValorTotal, AddInvestimen
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { getInvestimentos, deletaInvestimentos, addInvestimentos, tiposInvestimentos } from '../../api/investimentosApi'
+import { getInvestimentos, deletaInvestimentos, addInvestimentos, tiposInvestimentos, getTaxas, getCotacoes } from '../../api/investimentosApi'
 
 const styles = {
 	boxPai: {
@@ -44,8 +44,9 @@ const styles = {
 		alignItems: 'center',
 		justifyContent: 'center',
 	}
-}
 
+}
+//TENHO QUE DAR UM JEITO AGORA DE PEGAR AS COTAÇÕES/TAXAS, EXIBIR E SALVAR NO BANCO TAMBÉM
 const Investimentos = () => {
 	const [valores, setValores] = useState();
 	const [saldoTotal, setSaldoTotal] = useState('');
@@ -54,6 +55,8 @@ const Investimentos = () => {
 	const [dadosParaAddInvestimento, setDadosParaAddInvestimento] = useState({ open: false })
 	const [dadosParaDeletarInput, setDadosParaDeletarInput] = useState({ open: false, label: '', id: '' })
 	const [tiposInvest, setTiposInvest] = useState();
+	const [cotacoes, setCotacoes] = useState();
+	const [taxas, setTaxas] = useState();
 
 	const handleValores = (event, index) => {
 
@@ -64,8 +67,8 @@ const Investimentos = () => {
 
 	const salvaDados = async () => {
 
-		await addInvestimentos(valores);
-		setForceUpdate(prevState => !prevState);
+		// await addInvestimentos(valores);
+		// setForceUpdate(prevState => !prevState);
 		console.log(valores)
 	}
 
@@ -82,7 +85,8 @@ const Investimentos = () => {
 						...dadosParaAddInvestimento,
 						idTipoInvest: tipo.id,
 						simboloInvest: tipo.simboloInvest,
-						nomeInvest: tipo.nomeInvest
+						nomeInvest: tipo.nomeInvest,
+						nomeReferencia: tipo.nomeReferencia
 					});
 				}
 			});
@@ -155,7 +159,7 @@ const Investimentos = () => {
 
 
 	useEffect(() => {
-		const fetchData = async () => {
+		const pegaInvestimentos = async () => {
 
 			const response = await getInvestimentos();
 
@@ -173,9 +177,29 @@ const Investimentos = () => {
 			setTiposInvest(dados);
 		};
 
-		getTiposInvest()
+		const pegaTaxas = async () => {
+			const result = await getTaxas();
 
-		fetchData();
+			const dados = result.data
+
+			setTaxas(dados)
+		};
+
+		const pegaCotacoes = async () => {
+			const result = await getCotacoes();
+
+			const dados = result.data
+
+			setCotacoes(dados)
+		};
+
+		pegaCotacoes();
+
+		pegaTaxas();
+
+		getTiposInvest();
+
+		pegaInvestimentos();
 	}, [forceUpdate]);
 
 
@@ -187,7 +211,6 @@ const Investimentos = () => {
 		}
 
 	}, [valores])
-
 
 	return (
 		<>
@@ -206,6 +229,8 @@ const Investimentos = () => {
 									AbreEditorInvest={AbreEditorInvest}
 									abreModalDeleteInput={abreModalDeleteInput}
 									tiposInvest={tiposInvest}
+									cotacoes={cotacoes}
+									taxas={taxas}
 								/>
 							))}
 						</List>
@@ -250,7 +275,47 @@ const Investimentos = () => {
 	);
 }
 
-const InvestimentosItem = ({ item, index, handleValores, AbreEditorInvest, abreModalDeleteInput, tiposInvest }) => {
+const InvestimentosItem = ({ item, index, handleValores, AbreEditorInvest, abreModalDeleteInput, tiposInvest, cotacoes, taxas }) => {
+
+	const getInfoTaxasECotacoes = () => {
+		const taxa = taxas?.find(taxa => taxa?.nome === item.nomeReferencia);
+		const cotacao = cotacoes?.currencies[item.nomeReferencia]?.buy;
+
+		if (cotacao !== undefined) {
+			return cotacao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+		} else if (taxa !== undefined) {
+			return `${taxa.valor}%`;
+		} else {
+			return null;
+		}
+	};
+
+	const calcularRendimento = () => {
+		const dataInicio = new Date(item.dataInicio);
+		const dataFim = new Date(item.dataFim);
+
+		const diasInvestidos = Math.ceil((dataFim - dataInicio) / (1000 * 60 * 60 * 24));
+
+		const valorInvestido = parseFloat(item.valor);
+
+		let rendimento = 0
+
+		if (diasInvestidos <= 0) return 0;
+
+		if (item.idTipoInvest > 6) {
+			const taxaCotacao = cotacoes?.currencies[item.nomeReferencia]?.buy || 1;
+			rendimento = valorInvestido * taxaCotacao;
+
+		} else {
+			const taxaPercentual = taxas?.find(taxa => taxa?.nome === item.nomeReferencia);
+			const taxaDecimal = parseFloat(taxaPercentual?.valor) / 100;
+			const rendimentoAnual = valorInvestido * Math.pow(1 + taxaDecimal, diasInvestidos / 365);
+			rendimento = rendimentoAnual - valorInvestido;
+		}
+
+		return rendimento.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+	};
+
 	return (
 		<Card sx={styles.cardInputs}>
 			<ListItem >
@@ -285,13 +350,13 @@ const InvestimentosItem = ({ item, index, handleValores, AbreEditorInvest, abreM
 							startAdornment: <InputAdornment position="start">Você está investimento em: {item.simboloInvest}</InputAdornment>,
 						}}
 					/>
-					
+
 					<TextField sx={{ mt: 1 }}
 						fullWidth
 						id={item.id.toString()}
-						type="number"
+						type="text"
 						variant="standard"
-						value='11'
+						value={getInfoTaxasECotacoes() || ''}
 						// onChange={(e) => handleValores(e, index)}
 						InputProps={{
 							startAdornment: <InputAdornment position="start">{item.idTipoInvest <= 6 ? 'Taxa' : 'Cotação'}: </InputAdornment>,
@@ -300,16 +365,16 @@ const InvestimentosItem = ({ item, index, handleValores, AbreEditorInvest, abreM
 							},
 						}}
 					/>
-				
+
 					<TextField sx={{ mt: 1 }}
 						fullWidth
 						id={item.id.toString()}
-						type="number"
+						type="text"
 						variant="standard"
-						value='1100'
+						value={calcularRendimento() || ''}
 						// onChange={(e) => handleValores(e, index)}
 						InputProps={{
-							startAdornment: <InputAdornment position="start">Rendimento: R$ </InputAdornment>,
+							startAdornment: <InputAdornment position="start">{item.idTipoInvest <=6 ? 'Rendimento anual:' : 'Conversão:'} </InputAdornment>,
 							inputProps: {
 								min: 0
 							},

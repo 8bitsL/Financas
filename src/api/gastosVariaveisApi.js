@@ -1,4 +1,4 @@
-import api from './index.js'
+import { api } from './index.js'
 
 export const getGastosVariaveis = () => {
 	return api.get('/gastosvariaveis');
