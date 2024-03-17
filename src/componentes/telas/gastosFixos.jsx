@@ -9,6 +9,8 @@ import { getGastosFixos,deletaGastosFixos, addGastosFixos } from '../../api/gast
 
 const styles = {
 	boxPai: {
+		display: 'flex',
+		flexDirection: 'column',
 		width: '99%',
 		height: '75%',
 		mb: 1,
@@ -20,8 +22,8 @@ const styles = {
 	container: {
 		display: 'flex',
 		flexDirection: 'column',
-		justifyContent: 'space-around',
-		height: '90%',
+		justifyContent: 'space-between',
+		flex: 1,
 	},
 	boxInputs: {
 		display: 'flex',

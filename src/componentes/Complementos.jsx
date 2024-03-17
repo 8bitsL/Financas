@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Paper, Typography, Button, Tooltip, Fab, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, FormControl, InputLabel, MenuItem } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AddIcon from '@mui/icons-material/Add';
@@ -29,7 +29,7 @@ export const Titulo = (props) => {
 export const BotaoSalvar = (props) => {
 	return (
 		<Paper sx={style.paperTitle} elevation={8}>
-			<Button endIcon={<SendIcon />} sx={{ color: 'white', width: '100%', height: '100%' }} onClick={props.salvaDados}>{props.texto}</Button>
+			<Button endIcon={<SendIcon />} sx={{ color: 'white', width: '100%', height: '100%', p: 2 }} onClick={props.salvaDados}>{props.texto}</Button>
 		</Paper>
 
 	)
@@ -88,9 +88,6 @@ export const EditInput = (props) => {
 					onChange={(e) => props.NovoLabel(e.target.value)}
 
 				/>
-				{/* {props.tipo === 'invest' &&
-					EditInvestimento(props)
-				} */}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={props.EditaLabel}>Alterar</Button>
@@ -101,6 +98,9 @@ export const EditInput = (props) => {
 }
 
 export const AddInput = (props) => {
+
+	const [validaInput, setValidInput] = useState(false)
+
 	return (
 		<Dialog open={props.dadosParaAddInput.open} onClose={props.fechaAddNovoInput}>
 			<DialogTitle>Novos itens</DialogTitle>
@@ -114,21 +114,32 @@ export const AddInput = (props) => {
 					type="text"
 					fullWidth
 					variant="standard"
+					inputProps={{maxLength: 50}}
 					onChange={(e) => props.addValoresNovoInput(e.target.value, 'label')}
 
 				/>
 				<TextField
+					error={validaInput}
+					helperText= {validaInput && 'Valor não pode ser negativo'}
 					margin="dense"
 					id="valor"
 					label='Valor'
 					type="number"
 					fullWidth
 					variant="standard"
-					onChange={(e) => props.addValoresNovoInput(e.target.value, 'valor')}
+					onChange={(e) => {
+						if(e.target.value < 0){
+							setValidInput(true);
+						}else{
+							setValidInput(false);
+							props.addValoresNovoInput(e.target.value, 'valor')
+						}
+					}}
 				/>
+
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.salvaNovoInput}>Criar</Button>
+				<Button disabled={validaInput} onClick={props.salvaNovoInput}>Criar</Button>
 				<Button onClick={props.fechaAddNovoInput} color="error">Cancelar</Button>
 			</DialogActions>
 		</Dialog>
@@ -138,6 +149,9 @@ export const AddInput = (props) => {
 //PARTE RELACIONADA AOS INVESTIMENTOS
 
 export const AddInvestimento = (props) => {
+	const [validaInput, setValidInput] = useState(false);
+	const [value, setValue] = useState(200);
+
 	const formataData = (data) => {
 		console.log(data)
 		const [ano, mes, dia] = data.split('-');
@@ -157,17 +171,27 @@ export const AddInvestimento = (props) => {
 					type="text"
 					fullWidth
 					variant="standard"
+					inputProps={{ maxLength: 100 }}
 					onChange={(e) => props.addValoresNovoInput(e.target.value, 'label')}
 
 				/>
 				<TextField
+					error={validaInput}
+					helperText= {validaInput && 'Valor não pode ser negativo'}
 					margin="dense"
 					id="valor"
 					label='Valor do investimento'
 					type="number"
 					fullWidth
 					variant="standard"
-					onChange={(e) => props.addValoresNovoInput(e.target.value, 'valor')}
+					onChange={(e) => {
+						if(e.target.value < 0){
+							setValidInput(true);
+						}else{
+							setValidInput(false);
+							props.addValoresNovoInput(e.target.value, 'valor')
+						}
+					}}
 				/>
 				<TextField sx={{ mt: 3 }}
 					id="tipoInvest"
@@ -193,6 +217,7 @@ export const AddInvestimento = (props) => {
 					fullWidth
 					multiline
 					minRows={2}
+					inputProps={{maxLength: 250}}
 					onChange={(e) => props.addValoresNovoInput(e.target.value, 'descricao')}
 				/>
 
@@ -229,7 +254,7 @@ export const AddInvestimento = (props) => {
 				</FormControl>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={props.salvaNovoInput}>Criar</Button>
+				<Button disabled={validaInput} onClick={props.salvaNovoInput}>Criar</Button>
 				<Button onClick={props.fechaAddNovoInput} color="error">Cancelar</Button>
 			</DialogActions>
 		</Dialog>
@@ -273,6 +298,7 @@ export const EditInputInvest = (props) => {
 					type="text"
 					fullWidth
 					variant="standard"
+					inputProps={{maxLength: 50}}
 					onChange={(e) => props.NovoInvest(e.target.value, 'label')}
 
 				/>
@@ -296,6 +322,7 @@ export const EditInputInvest = (props) => {
 					multiline
 					minRows={2}
 					value={props.dadosParaEditarInvestimento.descricao || ''}
+					inputProps={{maxLength: 250}}
 					onChange={(e) => props.NovoInvest(e.target.value, 'descricao')}
 				/>
 

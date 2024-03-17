@@ -13,7 +13,6 @@ import CreditScoreIcon from '@mui/icons-material/CreditScore';
 const styles = {
 	list: {
 		width: 240,
-		height: '100%',
 		backgroundColor: '#252724',
 		color: 'white',
 
